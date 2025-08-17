@@ -1,0 +1,32 @@
+npm install -g @open-wa/wa-automate const { create, Client } = require('@open-wa/wa-automate');
+
+create().then(client => start(client));
+
+function start(client) {
+  
+  client.onMessage(async message => {
+    
+    if (message.body === "!oi") {
+      await client.sendText(message.from, "👋 Olá! Eu sou seu bot de diversão!");
+    }
+
+    if (message.body === "!piada") {
+      await client.sendText(message.from, "🤣 Qual é o cúmulo do absurdo? Usar régua pra medir febre!");
+    }
+
+    if (message.body === "!menu") {
+      await client.sendText(message.from, "📌 Comandos disponíveis:\n\n!oi\n!piada\n!sticker (envie com imagem)");
+    }
+
+    if (message.mimetype) {
+      const mediaData = await client.decryptFile(message);
+      const fs = require('fs');
+      const filename = `media.${message.mimetype.split('/')[1]}`;
+      fs.writeFileSync(filename, mediaData);
+
+      if (message.caption === "!sticker") {
+        await client.sendImageAsSticker(message.from, filename);
+      }
+    }
+  });
+}
